@@ -13,13 +13,17 @@ import it.polito.tdp.yelp.model.User;
 public class YelpDao {
 	
 	
-	public List<Business> getAllBusiness(){
-		String sql = "SELECT * FROM Business";
+	public List<Business> getAllBusiness(String citta){
+		String sql = "SELECT * "
+				+ "FROM business b "
+				+ "WHERE b.city=? "
+				+ "ORDER BY b.business_name asc ";
 		List<Business> result = new ArrayList<Business>();
 		Connection conn = DBConnect.getConnection();
 
 		try {
 			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, citta);
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
 
@@ -48,13 +52,16 @@ public class YelpDao {
 		}
 	}
 	
-	public List<Review> getAllReviews(){
-		String sql = "SELECT * FROM Reviews";
+	public List<Review> getAllReviews(Business b){
+		String sql = "SELECT * "
+				+ "FROM reviews r "
+				+ "WHERE r.business_id=? ";
 		List<Review> result = new ArrayList<Review>();
 		Connection conn = DBConnect.getConnection();
 
 		try {
 			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, b.getBusinessId());
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
 
@@ -99,6 +106,33 @@ public class YelpDao {
 						res.getInt("review_count"));
 				
 				result.add(user);
+			}
+			res.close();
+			st.close();
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public List<String> getAllCities() {
+		String sql = "SELECT distinct(b.city) "
+				+ "FROM business b "
+				+ "ORDER BY b.city asc ";
+		List<String> result = new ArrayList<String>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+
+				String citta=res.getString("city");
+				
+				result.add(citta);
 			}
 			res.close();
 			st.close();

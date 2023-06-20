@@ -49,19 +49,48 @@ public class FXMLController {
     	String citta = this.cmbCitta.getValue();
     	if(citta != null) {
     		//TODO popolare la tendina dei locali per la città selezionata
+    		this.cmbLocale.getItems().addAll(this.model.getAllBusiness(citta));
     		
     	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	Business b=this.cmbLocale.getValue();
+    	if(b==null) {
+    		return;
+    	}
+    	this.model.creaGrafo(b);
+
+    	List<Review> lista=this.model.getMaggiore();
+    	if(lista.size()!=0) {
+    		this.txtResult.setText("trovate maggiori");
+    		for(Review v: lista) {
+    			this.txtResult.appendText(v.getReviewId()+"-"+this.model.getValoreMaggiori());
+    		}
+    	}
+    	
     	
     }
 
     @FXML
     void doTrovaMiglioramento(ActionEvent event) {
+    	List<Review> sequenza=this.model.trovaSequenza();
+    	if(sequenza.size()!=0) {
+    		this.txtResult.setText("trovata sequenza\n");
+    		for(Review r:sequenza) {
+    		this.txtResult.appendText(r.getReviewId()+"-"+ r.getDate()+"\n");
+    		}
+    		this.txtResult.appendText("giorni trascorsi: "+this.model.getGiorni());
+    	}
+    	else{
+    		this.txtResult.setText("sequenza nulla");
+    		
+    	}
     	
     }
+
+	
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
@@ -75,5 +104,6 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.cmbCitta.getItems().addAll(this.model.getAllCities());
     }
 }
